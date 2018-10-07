@@ -1,0 +1,94 @@
+#install ubuntu 14.04 
+# http://releases.ubuntu.com/14.04/
+
+# General 
+sudo apt-get -y update
+sudo apt-get -y install -y build-essential m4
+sudo apt-get -y install emacs
+sudo apt-get -y install git
+sudo apt-get -y install make 
+sudo apt-get -y install autoconf
+
+# bison / flex ( 2.7 for verilator )
+cd /usr/src
+sudo wget http://ftp.gnu.org/gnu/bison/bison-2.7.tar.gz
+sudo tar -xvf bison-2.7.tar.gz
+sudo rm  bison-2.7.tar.gz
+cd bison-2.7/
+sudo ./configure --prefix=/usr/local/bison --with-libiconv-prefix=/usr/local/libiconv/
+sudo make
+sudo make install
+sudo ln -s /usr/local/bison/bin/bison /usr/bin/bison
+sudo ln -s /usr/local/bison/bin/yacc /usr/bin/yacc
+sudo apt-get -y install flex
+
+#VERILATOR
+
+wget verilator https://www.veripool.org/ftp/verilator-4.004.tgz
+tar -zxvf verilator-4.004.tgz
+mv verilator-4.004 verilator
+cd verilator/
+./configure 
+make
+sudo make install
+
+#GCC 4.9.3
+cd /usr/src
+sudo wget https://ftp.gnu.org/gnu/gcc/gcc-4.9.3/gcc-4.9.3.tar.gz
+sudo tar -zxvf gcc-4.9.3.tar.gz
+sudo rm gcc-4.9.3.tar.gz
+cd gcc-4.9.3
+sudo ./contrib/download_prerequisites
+cd ..
+sudo mkdir objdir
+sudo cd objdir
+sudo ../gcc-4.9.3/configure --prefix=$HOME/gcc-4.9.3 --enable-languages=c,c++,fortran,go --disable-multilib
+sudo make
+sudo make install
+rm -rf ~/objdir
+rm -f ~/gcc-4.9.3.tar.gz
+
+#PYTHON 2
+cd /usr/src
+sudo wget https://www.python.org/ftp/python/2.7.14/Python-2.7.14.tgz
+sudo tar -zxvf Python-2.7.14.tgz
+cd Python-2.7.14
+sudo ./configure --enable-optimizations
+sudo make altinstall
+sudo rm -f Python-2.7.14.tgz
+
+#BREW
+sudo apt-get -y install perlbrew
+perlbrew init
+perlbrew install perl-5.10.1
+
+##
+sudo apt-get -y install g++ cmake libboost-dev python-dev libglib2.0-dev libpixman-1-dev liblua5.2-dev swig libcap-dev libattr1-dev
+
+# https://github.com/nvdla/vp/blob/master/README.md
+#SystemC
+cd /usr/src
+sudo wget -O systemc-2.3.0a.tar.gz http://www.accellera.org/images/downloads/standards/systemc/systemc-2.3.0a.tar.gz
+sudo tar -xzvf systemc-2.3.0a.tar.gz
+sudo cd systemc-2.3.0a
+sudo mkdir -p /usr/local/systemc-2.3.0/
+sudo mkdir objdir
+sudo cd objdir
+sudo ../configure --prefix=/usr/local/systemc-2.3.0
+sudo make
+sudo make install
+
+cpan YAML
+sudo apt-get -y install libio-tee-perl
+sudo apt-get -y install libunicode-string-perl
+
+#nvdla
+# http://nvdla.org/hw/v1/integration_guide.html#env-setup
+cd 
+mkdir NVDLA
+cd NVDLA
+git clone https://github.com/nvdla/hw.git
+cd hw
+./tools/bin/tmake -build vmod
+./tools/bin/tmake -build verif_sim
+./tools/bin/tmake -build cmod_top
